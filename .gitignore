@@ -2,4 +2,3 @@ node_modules
 dist
 environments/local.env
 .idea
-local.env
