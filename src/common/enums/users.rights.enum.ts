@@ -9,3 +9,8 @@ export enum EType {
   Premium = 'premium',
   Default = 'default',
 }
+
+export enum EUserBanned{
+  ACTIVE = 'active',
+  BANNED = 'banned',
+}

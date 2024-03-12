@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 
 import { EmailService } from '../../common/services/email.service';
 import { S3Service } from '../../common/services/s3.service';
+import { LikeRepository } from '../../repository/services/like.repository';
+import { ViewsRepository } from '../../repository/services/views.repository';
 import { AuthModule } from '../auth/auth.module';
 import { AuthCacheService } from '../auth/services/auth.cache.service';
 import { TokenService } from '../auth/services/token.service';
@@ -13,7 +15,14 @@ import { CarsService } from './cars.service';
 @Module({
   imports: [AuthModule],
   controllers: [CarsController],
-  providers: [CarsService, CarsRepository, S3Service, EmailService],
+  providers: [
+    CarsService,
+    CarsRepository,
+    LikeRepository,
+    S3Service,
+    EmailService,
+    ViewsRepository,
+  ],
   exports: [CarsRepository, EmailService],
 })
 export class CarsModule {}

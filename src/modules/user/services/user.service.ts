@@ -4,6 +4,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 
+import { EUserBanned } from '../../../common/enums/users.rights.enum';
 import { EFileTypes, S3Service } from '../../../common/services/s3.service';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
@@ -52,6 +53,14 @@ export class UserService {
   public async updateByAdmin(id: string, updateUserDto: UpdateUserDto) {
     const entity = await this.findUserByIdOrException(id);
     this.userRepository.merge(entity, updateUserDto);
+    return await this.userRepository.save(entity);
+  }
+  public async banUser(id: string) {
+    const entity = await this.findUserByIdOrException(id);
+    this.userRepository.merge(entity, {
+      ...entity,
+      active: EUserBanned.BANNED,
+    });
     return await this.userRepository.save(entity);
   }
 

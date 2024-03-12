@@ -13,13 +13,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { ERights } from '../../common/enums/users.rights.enum';
 import { CarsEntity } from '../../database/entities/cars.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
 import { RightsDecorator } from '../auth/decorators/user-rights.decorator';
+import { BannedAccessGuard } from '../auth/guards/banned.access.guard';
 import { PremiumAccessGuard } from '../auth/guards/premium.access.guard';
 import { UserAccessGuard } from '../auth/guards/user.access.guard';
 import { IUserData } from '../auth/interfaces/user-data.interface';
@@ -35,8 +36,9 @@ export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   @Post()
+  @ApiOperation({ summary: 'post a car by customer' })
   @RightsDecorator(ERights.Seller)
-  @UseGuards(UserAccessGuard, PremiumAccessGuard)
+  @UseGuards(UserAccessGuard, PremiumAccessGuard, BannedAccessGuard)
   @UseInterceptors(FileInterceptor('image'))
   public async create(
     @Body() createCarDto: CreateCarDto,
@@ -47,18 +49,24 @@ export class CarsController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'get all cars' })
+  @UseGuards(BannedAccessGuard)
   public async findAll(
     @Query() query: CarsListRequestDto,
     @CurrentUser() userData: IUserData,
   ) {
     return await this.carsService.findAll(query, userData);
   }
-
+  @UseGuards(BannedAccessGuard)
+  @ApiOperation({ summary: 'get a car by id' })
   @Get(':id')
-  public async findOne(@Param('id') id: string) {
-    return this.carsService.findOne(+id);
+  public async findOne(
+    @Param('id') id: string,
+    @CurrentUser() userData: IUserData,
+  ) {
+    return await this.carsService.findOne(id, userData);
   }
-
+  @ApiOperation({ summary: 'update users car' })
   @Patch(':id')
   public async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -68,8 +76,26 @@ export class CarsController {
     return await this.carsService.update(id, updateCarDto, userData);
   }
 
+  @ApiOperation({ summary: 'delete users car' })
   @Delete(':id')
   remove(@Param('id') id: string, @CurrentUser() userData: IUserData) {
     return this.carsService.remove(id, userData);
+  }
+  @Post('like/:id')
+  @ApiOperation({ summary: 'like users car' })
+  like(@Param('id') id: string, @CurrentUser() userData: IUserData) {
+    return this.carsService.like(id, userData);
+  }
+  @Delete('like/:id')
+  @ApiOperation({ summary: 'dislike users car' })
+  dislike(@Param('id') id: string, @CurrentUser() userData: IUserData) {
+    return this.carsService.dislike(id, userData);
+  }
+  @ApiOperation({ summary: 'create request to manager to buy a car' })
+  @RightsDecorator(ERights.Manager)
+  @UseGuards(UserAccessGuard, BannedAccessGuard)
+  @Post('buy/:id')
+  buy(@Param('id') id: string, @CurrentUser() userData: IUserData) {
+    return this.carsService.buyCar(id, userData);
   }
 }

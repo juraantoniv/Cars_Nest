@@ -9,6 +9,7 @@ import { EntityManager } from 'typeorm';
 
 import { EEmailAction } from '../../../common/enums/email.action.enum';
 import { TokenType } from '../../../common/enums/token.enum';
+import { ERights } from '../../../common/enums/users.rights.enum';
 import { EmailService } from '../../../common/services/email.service';
 import { EFileTypes, S3Service } from '../../../common/services/s3.service';
 import { UserEntity } from '../../../database/entities/user.entity';
@@ -43,6 +44,7 @@ export class AuthService {
   public async signUp(
     dto: CreateUserDto,
     file: Express.Multer.File,
+    manager?: boolean,
   ): Promise<any> {
     const findUser = await this.userRepository.findOneBy({
       email: dto.email,
@@ -66,6 +68,7 @@ export class AuthService {
     const userAfterUpdateAvatar = this.userRepository.merge(user, {
       ...user,
       avatar: filePath,
+      role: manager ? ERights.Manager : ERights.Costumer,
     });
 
     await this.userRepository.save(userAfterUpdateAvatar);

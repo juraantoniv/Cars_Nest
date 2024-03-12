@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { log } from 'console';
 
 import { EEmailAction } from '../../common/enums/email.action.enum';
@@ -26,17 +26,18 @@ import { UserService } from './services/user.service';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
+  @ApiOperation({ summary: 'get all users' })
   @Get()
   public async findAll() {
     return await this.userService.findAll();
   }
-
+  @ApiOperation({ summary: 'get user by id' })
   @ApiBearerAuth()
   @Get(':id')
   public async findOne(@Param('id') id: string) {
     return await this.userService.findOne(id);
   }
+  @ApiOperation({ summary: 'update by user his data' })
   @ApiBearerAuth()
   @Patch()
   public async update(
@@ -45,7 +46,7 @@ export class UserController {
   ) {
     return await this.userService.update(updateUserDto, userData);
   }
-
+  @ApiOperation({ summary: 'get me' })
   @ApiBearerAuth()
   @Get('user/me')
   public async me(@CurrentUser() userData: IUserData) {

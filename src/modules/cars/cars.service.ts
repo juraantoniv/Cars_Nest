@@ -1,10 +1,15 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { MongoUnexpectedServerResponseError } from 'typeorm';
 
 import { EEmailAction } from '../../common/enums/email.action.enum';
 import { ERights, EType } from '../../common/enums/users.rights.enum';
 import { EmailService } from '../../common/services/email.service';
 import { EFileTypes, S3Service } from '../../common/services/s3.service';
+import { CarsEntity } from '../../database/entities/cars.entity';
+import { UserEntity } from '../../database/entities/user.entity';
+import { LikeRepository } from '../../repository/services/like.repository';
+import { ViewsRepository } from '../../repository/services/views.repository';
 import { IUserData } from '../auth/interfaces/user-data.interface';
 import { UserRepository } from '../user/user.repository';
 import { CarsRepository } from './cars.repository';
@@ -20,6 +25,8 @@ export class CarsService {
     private readonly userRepository: UserRepository,
     private readonly s3Serv: S3Service,
     private readonly emailService: EmailService,
+    private readonly viewsRepository: ViewsRepository,
+    private readonly likeRepository: LikeRepository,
   ) {}
   async create(
     createCarDto: CreateCarDto,
@@ -96,8 +103,18 @@ export class CarsService {
       : CarsResponseMapper.toResponseManyDto(entities, total, query);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} car`;
+  public async findOne(id: string, userData: IUserData) {
+    const user = await this.userRepository.findOneBy({ id: userData.userId });
+    const userPremium = user.userPremiumRights;
+    const car = await this.carsRepository.getById(id);
+    await this.viewsRepository.save({
+      car_id: car.id,
+      user_id: userData.userId,
+    });
+    console.log(car);
+    return userPremium === EType.Premium
+      ? CarsResponseMapper.toResponseDtoViews(car)
+      : CarsResponseMapper.toResponseDto(car);
   }
 
   public async update(
@@ -118,12 +135,67 @@ export class CarsService {
   }
 
   public async remove(id: string, userData: IUserData) {
-    const car = await this.carsRepository.findOneBy({ id: id });
-    const user = await this.userRepository.findOneBy({ id: userData.userId });
+    const { car, user } = await this.findCarAndUser(id, userData.userId);
+
     if (car.user_id !== userData.userId && user.role !== ERights.Admin) {
       throw new ForbiddenException('You cant delete a car that not your own');
     }
 
     await this.carsRepository.remove(car);
+  }
+  public async like(id: string, userData: IUserData) {
+    const { car, user } = await this.findCarAndUser(id, userData.userId);
+
+    if (car.user_id === userData.userId) {
+      throw new ForbiddenException('You cant like a car that  your own car');
+    }
+
+    await this.likeRepository.save(
+      this.likeRepository.create({ cars_id: id, user_id: userData.userId }),
+    );
+  }
+  public async dislike(id: string, userData: IUserData) {
+    const { car, user } = await this.findCarAndUser(id, userData.userId);
+    if (car.user_id === userData.userId) {
+      throw new ForbiddenException('You cant dislike a car that  your own car');
+    }
+
+    const likeEntity = await this.likeRepository.findOneBy({
+      cars_id: id,
+      user_id: userData.userId,
+    });
+
+    if (!likeEntity) {
+      throw new ForbiddenException();
+    }
+
+    await this.likeRepository.remove(likeEntity);
+  }
+  public async buyCar(id: string, userData: IUserData) {
+    const { car, user } = await this.findCarAndUser(id, userData.userId);
+
+    const users = await this.userRepository.findBy({
+      role: ERights.Manager,
+    });
+
+    users.map(async (el) => {
+      await this.emailService.send(el.email, EEmailAction.Buy, {
+        name: user.name,
+        email: user.email,
+        city: user.city,
+        brand: car.brand,
+      });
+    });
+  }
+  private async findCarAndUser(
+    carId: string,
+    userId: string,
+  ): Promise<{ car: CarsEntity; user: UserEntity }> {
+    const car = await this.carsRepository.findOneBy({ id: carId });
+    const user = await this.userRepository.findOneBy({ id: userId });
+    return {
+      car,
+      user,
+    };
   }
 }

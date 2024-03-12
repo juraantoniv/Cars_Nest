@@ -17,11 +17,10 @@ export class CarsRepository extends Repository<CarsEntity> {
     userData: IUserData,
   ): Promise<[CarsEntity[], number]> {
     const qb = this.createQueryBuilder('cars');
-    qb.leftJoinAndSelect('cars.likes', 'like');
+    qb.leftJoinAndSelect('cars.likes', 'likes');
     qb.leftJoinAndSelect('cars.user', 'user');
     qb.leftJoinAndSelect('cars.views', 'views');
-    qb.setParameter('myId', userData.userId);
-    qb.where('cars.active = :active', { active: 'active' });
+    // qb.where('cars.active = :active', { active: 'active' });
 
     if (query.search) {
       qb.andWhere(
@@ -35,5 +34,13 @@ export class CarsRepository extends Repository<CarsEntity> {
     qb.take(query.limit);
     qb.skip(query.offset);
     return await qb.getManyAndCount();
+  }
+  public async getById(id: string) {
+    const qb = this.createQueryBuilder('cars');
+    qb.leftJoinAndSelect('cars.views', 'views');
+    qb.leftJoinAndSelect('cars.likes', 'likes', 'likes.cars_id = cars.id');
+    qb.setParameter('carId', id);
+    qb.where('cars.id=:carId');
+    return await qb.getOne();
   }
 }

@@ -2,7 +2,7 @@ import { IsEnum } from 'class-validator';
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../../common/entities/base.entities';
-import { ERights, EType } from '../../common/enums/users.rights.enum';
+import { ERights, EType, EUserBanned } from '../../common/enums/users.rights.enum';
 import { Car_DealershipEntity } from './car_dealership.entity';
 import { CarsEntity } from './cars.entity';
 import { LikeEntity } from './like.entity';
@@ -41,6 +41,14 @@ export class UserEntity extends BaseEntity {
   })
   @IsEnum(ERights)
   userPremiumRights: EType;
+
+  @Column({
+    type: 'enum',
+    enum: EUserBanned,
+    default: EUserBanned.ACTIVE,
+  })
+  @IsEnum(EUserBanned)
+  active: EUserBanned;
 
   @Column('text', { nullable: true, default: null })
   avatar: string;

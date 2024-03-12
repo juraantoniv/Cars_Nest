@@ -45,7 +45,7 @@ export class CarsEntity extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 
-  @OneToMany(() => LikeEntity, (entity) => entity.user)
+  @OneToMany(() => LikeEntity, (entity) => entity.cars)
   likes?: LikeEntity[];
 
   @OneToMany(() => ViewsEntity, (entity) => entity.car)

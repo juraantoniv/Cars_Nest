@@ -8,6 +8,7 @@ export class CarList {
   description: string;
   currency: Array<any>;
   currency_type: string;
+  likes: Array<any>;
 }
 
 export class CarsResponseDto<T> {

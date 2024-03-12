@@ -56,6 +56,7 @@ export class AdminController {
 
   @ApiBearerAuth()
   @Post('logout')
+  @ApiOperation({ summary: 'user logout' })
   public async logout(
     @CurrentUser() userData: IUserData,
     @Body('refresh_token') refresh_token: string,
@@ -63,14 +64,16 @@ export class AdminController {
     await this.authService.logout(refresh_token, userData);
   }
   @ApiBearerAuth()
-  @RightsDecorator(ERights.Admin)
+  @ApiOperation({ summary: 'delete user' })
+  @RightsDecorator(ERights.Admin, ERights.Manager)
   @UseGuards(UserAccessGuard)
   @Delete('delete/:id')
   public async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.userService.remove(id);
   }
   @ApiBearerAuth()
-  @RightsDecorator(ERights.Admin)
+  @ApiOperation({ summary: 'update user' })
+  @RightsDecorator(ERights.Admin, ERights.Manager)
   @UseGuards(UserAccessGuard)
   @Patch('update/:id')
   public async update(
@@ -78,5 +81,24 @@ export class AdminController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<void> {
     await this.userService.updateByAdmin(id, updateUserDto);
+  }
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'ban user' })
+  @RightsDecorator(ERights.Admin, ERights.Manager)
+  @UseGuards(UserAccessGuard)
+  @Post('user_ban/:id')
+  public async user_ban(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    await this.userService.banUser(id);
+  }
+  @RightsDecorator(ERights.Admin)
+  @UseGuards(UserAccessGuard)
+  @ApiOperation({ summary: 'Manager Registration' })
+  @Post('sign-up-manager')
+  @UseInterceptors(FileInterceptor('file'))
+  public async signUpManager(
+    @Body() dto: CreateUserDto,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<AuthUserResponseDto> {
+    return await this.authService.signUp(dto, file, true);
   }
 }

@@ -21,8 +21,9 @@ export class CarsResponseMapper {
       brand: carEntity.brand,
       image: `${awsConfig.aws_url}${carEntity.image}`,
       description: carEntity.description,
-      currency: carEntity.currency.map((el) => el),
+      currency: carEntity.currency.map((el) => JSON.parse(el)),
       currency_type: carEntity.currency_type,
+      likes: carEntity.likes.map((el) => el),
     };
   }
   public static toResponseDtoViews(
@@ -33,9 +34,10 @@ export class CarsResponseMapper {
       brand: carEntity.brand,
       image: `${awsConfig.aws_url}${carEntity.image}`,
       description: carEntity.description,
-      currency: carEntity.currency.map((el) => el),
+      currency: carEntity.currency.map((el) => JSON.parse(el)),
       currency_type: carEntity.currency_type,
       views: carEntity.views,
+      likes: carEntity.likes.map((el) => el),
     };
   }
   public static toResponseManyDto(
