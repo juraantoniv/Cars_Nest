@@ -35,7 +35,7 @@ export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   @Post()
-  @RightsDecorator(ERights.Costumer, ERights.Manager)
+  @RightsDecorator(ERights.Seller)
   @UseGuards(UserAccessGuard, PremiumAccessGuard)
   @UseInterceptors(FileInterceptor('image'))
   public async create(

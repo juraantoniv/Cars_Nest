@@ -61,6 +61,7 @@ export class JwtAccessGuard implements CanActivate {
       email: user.email,
       deviceId: payload.deviceId,
     };
+
     return true;
   }
 }

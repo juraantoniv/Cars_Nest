@@ -54,8 +54,11 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout' })
   @Post('logout')
-  public async logout(@CurrentUser() userData: IUserData): Promise<void> {
-    await this.authService.logout(userData);
+  public async logout(
+    @CurrentUser() userData: IUserData,
+    @Body('refresh_token') refresh_token: string,
+  ): Promise<void> {
+    await this.authService.logout(refresh_token, userData);
   }
 
   @SkipAuth()

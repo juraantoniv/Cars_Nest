@@ -16,7 +16,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('June-2023 API')
+    .setTitle('cars-2023 API')
     .setDescription('API description')
     .setVersion('1.0.0')
     .addBearerAuth({

@@ -107,8 +107,11 @@ export class AuthService {
     });
   }
 
-  public async logout(userData: IUserData): Promise<void> {
-    await this.deleteTokens('hfhf', userData);
+  public async logout(
+    refresh_token: string,
+    userData: IUserData,
+  ): Promise<void> {
+    await this.deleteTokens(refresh_token, userData);
   }
 
   public async refreshToken(

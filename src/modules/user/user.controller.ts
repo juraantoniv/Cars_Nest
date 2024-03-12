@@ -15,28 +15,17 @@ import { log } from 'console';
 
 import { EEmailAction } from '../../common/enums/email.action.enum';
 import { EmailService } from '../../common/services/email.service';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
+import { IUserData } from '../auth/interfaces/user-data.interface';
 import { CreateUserDto } from './dto/request/create-user.dto';
 import { UpdateUserDto } from './dto/request/update-user.dto';
-import { UserService } from './user.service';
+import { UserService } from './services/user.service';
 
 @ApiTags('User')
 @Controller('users')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly emailService: EmailService,
-  ) {}
-
-  @Post()
-  @UseInterceptors(FileInterceptor('file'))
-  public async create(
-    @Body() createUserDto: CreateUserDto,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    log('file', file);
-    log('file', createUserDto);
-    return await this.userService.create(createUserDto, file);
-  }
+  constructor(private readonly userService: UserService) {}
 
   @Get()
   public async findAll() {
@@ -48,17 +37,17 @@ export class UserController {
   public async findOne(@Param('id') id: string) {
     return await this.userService.findOne(id);
   }
-
-  @Patch(':id')
+  @ApiBearerAuth()
+  @Patch()
   public async update(
-    @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() userData: IUserData,
   ) {
-    return await this.userService.update(id, updateUserDto);
+    return await this.userService.update(updateUserDto, userData);
   }
-
-  @Delete(':id')
-  public async remove(@Param('id') id: string) {
-    return await this.userService.remove(id);
+  @ApiBearerAuth()
+  @Get('me')
+  public async me(@CurrentUser() userData: IUserData) {
+    return await this.userService.me(userData);
   }
 }

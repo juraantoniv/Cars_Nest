@@ -41,7 +41,7 @@ export class PremiumAccessGuard implements CanActivate {
 
     console.log(cars);
 
-    if (cars.cars.length <= 1 && user.userPremiumRights === EType.Default) {
+    if (cars.cars.length >= 1 && user.userPremiumRights === EType.Default) {
       throw new HttpException(
         'Access denied , you have to buy premium account to post other car.',
         HttpStatus.FORBIDDEN,

@@ -4,13 +4,13 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 
-import { EFileTypes, S3Service } from '../../common/services/s3.service';
-import { UserEntity } from '../../database/entities/user.entity';
-import { CreateUserDto } from './dto/request/create-user.dto';
-import { UpdateUserDto } from './dto/request/update-user.dto';
-import { UserRepository } from './user.repository';
-
-const users = [];
+import { EFileTypes, S3Service } from '../../../common/services/s3.service';
+import { UserEntity } from '../../../database/entities/user.entity';
+import { IUserData } from '../../auth/interfaces/user-data.interface';
+import { CreateUserDto } from '../dto/request/create-user.dto';
+import { UpdateUserDto } from '../dto/request/update-user.dto';
+import { UserRepository } from '../user.repository';
+import { UserMapper } from './user.mapper';
 
 @Injectable()
 export class UserService {
@@ -44,10 +44,20 @@ export class UserService {
     return await this.findUserByIdOrException(id);
   }
 
-  public async update(id: string, updateUserDto: UpdateUserDto) {
-    const entity = await this.findUserByIdOrException(id);
+  public async update(updateUserDto: UpdateUserDto, userData: IUserData) {
+    const entity = await this.findUserByIdOrException(userData.userId);
     this.userRepository.merge(entity, updateUserDto);
     return await this.userRepository.save(entity);
+  }
+
+  public async me(userData: IUserData) {
+    try {
+      return UserMapper.toResponseDto(
+        await this.findUserByIdOrException(userData.userId),
+      );
+    } catch (e) {
+      console.log('log', e);
+    }
   }
 
   public async remove(id: string) {

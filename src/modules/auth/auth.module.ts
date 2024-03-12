@@ -8,6 +8,8 @@ import { RefreshTokenRepository } from '../../repository/services/refresh-token.
 import { CarsModule } from '../cars/cars.module';
 import { RedisModule } from '../redis/redis.module';
 import { UserRepository } from '../user/user.repository';
+import { UserService } from '../user/services/user.service';
+import { AdminController } from './admin.controller';
 import { AuthController } from './auth.controller';
 import { JwtAccessGuard } from './guards/jwt.access.guard';
 import { AuthCacheService } from './services/auth.cache.service';
@@ -15,7 +17,7 @@ import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, AdminController],
   imports: [JwtModule, RedisModule],
   providers: [
     {
@@ -26,6 +28,7 @@ import { TokenService } from './services/token.service';
     AuthCacheService,
     TokenService,
     S3Service,
+    UserService,
   ],
   exports: [AuthCacheService, TokenService],
 })

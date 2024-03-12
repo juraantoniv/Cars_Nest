@@ -77,7 +77,6 @@ export class CarsService {
       image: filePath,
       user_id: userData.userId,
     });
-
     return CarsResponseMapper.toResponseDto(
       await this.carsRepository.save(user),
     );
