@@ -49,24 +49,25 @@ export class UserService {
     this.userRepository.merge(entity, updateUserDto);
     return await this.userRepository.save(entity);
   }
+  public async updateByAdmin(id: string, updateUserDto: UpdateUserDto) {
+    const entity = await this.findUserByIdOrException(id);
+    this.userRepository.merge(entity, updateUserDto);
+    return await this.userRepository.save(entity);
+  }
 
   public async me(userData: IUserData) {
-    try {
-      return UserMapper.toResponseDto(
-        await this.findUserByIdOrException(userData.userId),
-      );
-    } catch (e) {
-      console.log('log', e);
-    }
+    return UserMapper.toResponseDto(
+      await this.findUserByIdOrException(userData.userId),
+    );
   }
 
   public async remove(id: string) {
-    const etity = await this.userRepository.findOneBy({ id });
-    if (!etity) {
+    const entity = await this.userRepository.findOneBy({ id });
+    if (!entity) {
       throw new UnprocessableEntityException('User not found');
     }
 
-    await this.userRepository.remove(etity);
+    await this.userRepository.remove(entity);
   }
   private async findUserByIdOrException(userId: string): Promise<UserEntity> {
     const user = await this.userRepository.findOneBy({ id: userId });

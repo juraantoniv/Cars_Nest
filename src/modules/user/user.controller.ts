@@ -45,8 +45,9 @@ export class UserController {
   ) {
     return await this.userService.update(updateUserDto, userData);
   }
+
   @ApiBearerAuth()
-  @Get('me')
+  @Get('user/me')
   public async me(@CurrentUser() userData: IUserData) {
     return await this.userService.me(userData);
   }

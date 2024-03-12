@@ -4,6 +4,7 @@ import {
   Delete,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -14,6 +15,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { ERights } from '../../common/enums/users.rights.enum';
 import { CreateUserDto } from '../user/dto/request/create-user.dto';
+import { UpdateUserDto } from '../user/dto/request/update-user.dto';
 import { UserService } from '../user/services/user.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { SkipAuth } from './decorators/skip-auth.decorator';
@@ -66,5 +68,15 @@ export class AdminController {
   @Delete('delete/:id')
   public async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.userService.remove(id);
+  }
+  @ApiBearerAuth()
+  @RightsDecorator(ERights.Admin)
+  @UseGuards(UserAccessGuard)
+  @Patch('update/:id')
+  public async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<void> {
+    await this.userService.updateByAdmin(id, updateUserDto);
   }
 }

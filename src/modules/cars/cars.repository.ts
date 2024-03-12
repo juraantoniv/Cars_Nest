@@ -21,6 +21,7 @@ export class CarsRepository extends Repository<CarsEntity> {
     qb.leftJoinAndSelect('cars.user', 'user');
     qb.leftJoinAndSelect('cars.views', 'views');
     qb.setParameter('myId', userData.userId);
+    qb.where('cars.active = :active', { active: 'active' });
 
     if (query.search) {
       qb.andWhere(

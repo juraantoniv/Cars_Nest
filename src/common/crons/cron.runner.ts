@@ -18,7 +18,7 @@ export class TasksService {
     private emailService: EmailService,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
   public async updateCurrency() {
     try {
       const course = await axios.get(

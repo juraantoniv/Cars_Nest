@@ -69,7 +69,7 @@ export class CarsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.carsService.remove(+id);
+  remove(@Param('id') id: string, @CurrentUser() userData: IUserData) {
+    return this.carsService.remove(id, userData);
   }
 }

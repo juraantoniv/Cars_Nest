@@ -117,7 +117,13 @@ export class CarsService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} car`;
+  public async remove(id: string, userData: IUserData) {
+    const car = await this.carsRepository.findOneBy({ id: id });
+    const user = await this.userRepository.findOneBy({ id: userData.userId });
+    if (car.user_id !== userData.userId && user.role !== ERights.Admin) {
+      throw new ForbiddenException('You cant delete a car that not your own');
+    }
+
+    await this.carsRepository.remove(car);
   }
 }
