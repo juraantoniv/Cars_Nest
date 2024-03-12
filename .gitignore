@@ -1,5 +1,5 @@
 node_modules
 dist
-environments
+environments/local.env
 .idea
-.env
+local.env
