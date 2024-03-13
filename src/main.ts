@@ -14,6 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['log', 'debug'],
   });
+  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('cars-2023 API')

@@ -48,9 +48,10 @@ export class CarsController {
     return await this.carsService.create(createCarDto, file, userData);
   }
 
+  @SkipAuth()
   @Get()
   @ApiOperation({ summary: 'get all cars' })
-  @UseGuards(BannedAccessGuard)
+  // @UseGuards(BannedAccessGuard)
   public async findAll(
     @Query() query: CarsListRequestDto,
     @CurrentUser() userData: IUserData,
