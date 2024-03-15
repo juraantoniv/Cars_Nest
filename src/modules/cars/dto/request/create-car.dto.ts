@@ -13,6 +13,11 @@ export class CreateCarDto {
   brand: string;
 
   @IsString()
+  @Length(2, 20)
+  @Transform(({ value }) => value.trim())
+  brand2: string;
+
+  @IsString()
   currency_type: string;
 
   @IsString()

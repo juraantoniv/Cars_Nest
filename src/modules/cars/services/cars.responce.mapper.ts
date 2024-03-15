@@ -17,27 +17,29 @@ const awsConfig = getConfigs().aws;
 export class CarsResponseMapper {
   public static toResponseDto(carEntity: Partial<CarsEntity>): CarList {
     return {
+      id: carEntity.id,
       model: carEntity.model,
       brand: carEntity.brand,
       image: `${awsConfig.aws_url}${carEntity.image}`,
       description: carEntity.description,
-      currency: carEntity.currency.map((el) => JSON.parse(el)),
+      currency: carEntity?.currency?.map((el) => JSON.parse(el)),
       currency_type: carEntity.currency_type,
-      likes: carEntity.likes.map((el) => el),
+      likes: carEntity?.likes?.map((el) => el),
     };
   }
   public static toResponseDtoViews(
     carEntity: Partial<CarsEntity>,
   ): CarListPrem {
     return {
+      id: carEntity.id,
       model: carEntity.model,
       brand: carEntity.brand,
       image: `${awsConfig.aws_url}${carEntity.image}`,
       description: carEntity.description,
-      currency: carEntity.currency.map((el) => JSON.parse(el)),
+      currency: carEntity?.currency?.map((el) => JSON.parse(el)),
       currency_type: carEntity.currency_type,
       views: carEntity.views,
-      likes: carEntity.likes.map((el) => el),
+      likes: carEntity.likes?.map((el) => el),
     };
   }
   public static toResponseManyDto(

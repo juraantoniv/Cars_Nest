@@ -7,7 +7,7 @@ export class CarsListRequestDto {
   @Min(1)
   @Max(100)
   @IsOptional()
-  limit?: number = 10;
+  limit?: number = 5;
 
   @Type(() => Number)
   @IsInt()

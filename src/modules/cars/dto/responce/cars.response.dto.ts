@@ -2,6 +2,7 @@ import { CarsEntity } from '../../../../database/entities/cars.entity';
 import { ViewsEntity } from '../../../../database/entities/views.entity';
 
 export class CarList {
+  id: string;
   model: string;
   brand: string;
   image: string;

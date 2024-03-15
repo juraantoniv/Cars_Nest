@@ -19,6 +19,7 @@ export class CarsEntity extends BaseEntity {
   @Column('text')
   brand: string;
 
+
   @Column('text', { nullable: true })
   image: string;
 

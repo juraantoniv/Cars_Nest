@@ -33,60 +33,64 @@ export class CarsService {
     file: Express.Multer.File,
     userData: IUserData,
   ) {
-    const course = await axios.get(
-      'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5',
-    );
+    try {
+      const course = await axios.get(
+        'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5',
+      );
 
-    const myObject: any = {};
-    myObject.UAH = Number(createCarDto.price);
-    const arr = [];
-    arr.push(
-      myObject,
-      {
-        USD: Math.ceil(
-          Number(createCarDto.price) / Number(course.data[0].sale),
-        ),
-      },
-      {
-        EUR: Math.ceil(
-          Number(createCarDto.price) / Number(course.data[1].sale),
-        ),
-      },
-    );
-
-    const currentUser = await this.userRepository.findOneBy({
-      id: userData.userId,
-    });
-
-    if (!createCarDto.brand.includes('[BMW, MERCEDES, OPEL]')) {
-      const user = await this.userRepository.find({
-        where: {
-          role: ERights.Admin,
+      const myObject: any = {};
+      myObject.UAH = Number(createCarDto.price);
+      const arr = [];
+      arr.push(
+        myObject,
+        {
+          USD: Math.ceil(
+            Number(createCarDto.price) / Number(course.data[0].sale),
+          ),
         },
-      });
-      user.map(async (user) => {
-        await this.emailService.send(user.email, EEmailAction.Card_Brand, {
-          name: currentUser.name,
-          email: currentUser.email,
-          model: createCarDto.brand,
-        });
-      });
-    }
-    const filePath = await this.s3Serv.uploadFile(
-      file,
-      EFileTypes.User,
-      userData.userId,
-    );
+        {
+          EUR: Math.ceil(
+            Number(createCarDto.price) / Number(course.data[1].sale),
+          ),
+        },
+      );
 
-    const user = this.carsRepository.create({
-      ...createCarDto,
-      currency: arr,
-      image: filePath,
-      user_id: userData.userId,
-    });
-    return CarsResponseMapper.toResponseDto(
-      await this.carsRepository.save(user),
-    );
+      const currentUser = await this.userRepository.findOneBy({
+        id: userData.userId,
+      });
+
+      if (!createCarDto.brand.includes('[BMW, MERCEDES, OPEL]')) {
+        const user = await this.userRepository.find({
+          where: {
+            role: ERights.Admin,
+          },
+        });
+        user.map(async (user) => {
+          await this.emailService.send(user.email, EEmailAction.Card_Brand, {
+            name: currentUser.name,
+            email: currentUser.email,
+            model: createCarDto.brand,
+          });
+        });
+      }
+      const filePath = await this.s3Serv.uploadFile(
+        file,
+        EFileTypes.User,
+        userData.userId,
+      );
+
+      const user = this.carsRepository.create({
+        ...createCarDto,
+        currency: arr,
+        image: filePath,
+        user_id: userData.userId,
+      });
+      return CarsResponseMapper.toResponseDto(
+        await this.carsRepository.save(user),
+      );
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   public async findAll(query: CarsListRequestDto, userData: IUserData) {
@@ -145,6 +149,9 @@ export class CarsService {
   }
   public async like(id: string, userData: IUserData) {
     const { car, user } = await this.findCarAndUser(id, userData.userId);
+
+    console.log(car.user_id);
+    console.log(userData);
 
     if (car.user_id === userData.userId) {
       throw new ForbiddenException('You cant like a car that  your own car');

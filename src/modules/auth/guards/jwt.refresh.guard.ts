@@ -36,7 +36,6 @@ export class JwtRefreshGuard implements CanActivate {
     }
 
     const isExist = await this.refreshRepository.isTokenExist(refresh_token);
-    console.log(isExist);
     if (!isExist) {
       throw new UnauthorizedException();
     }
@@ -44,10 +43,15 @@ export class JwtRefreshGuard implements CanActivate {
     const user = await this.userRepository.findOneBy({
       id: payload.userId,
     });
+
     if (!user) {
       throw new UnauthorizedException();
     }
-    request.user = { user, deviceId: payload.deviceId };
+    request.user = {
+      userId: user.id,
+      email: user.email,
+      deviceId: payload.deviceId,
+    };
     return true;
   }
 }

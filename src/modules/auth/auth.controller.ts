@@ -19,7 +19,10 @@ import {
   RecoveryPasswordRequestDto,
 } from './dto/request/change-password.request.dto';
 import { SignInRequestDto } from './dto/request/sign-in.request.dto';
-import { AuthUserResponseDto } from './dto/response/auth-user.response.dto';
+import {
+  AuthUserResponseDto,
+  AuthUserResponseTokensDto,
+} from './dto/response/auth-user.response.dto';
 import { TokenResponseDto } from './dto/response/token.responce.dto';
 import { JwtRefreshGuard } from './guards/jwt.refresh.guard';
 import { IUserData } from './interfaces/user-data.interface';
@@ -47,18 +50,15 @@ export class AuthController {
   @Post('sign-in')
   public async signIn(
     @Body() dto: SignInRequestDto,
-  ): Promise<AuthMapperWithTokens> {
+  ): Promise<AuthUserResponseTokensDto> {
     return await this.authService.signIn(dto);
   }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout' })
   @Post('logout')
-  public async logout(
-    @CurrentUser() userData: IUserData,
-    @Body('refresh_token') refresh_token: string,
-  ): Promise<void> {
-    await this.authService.logout(refresh_token, userData);
+  public async logout(@CurrentUser() userData: IUserData): Promise<void> {
+    await this.authService.logout(userData);
   }
 
   @SkipAuth()

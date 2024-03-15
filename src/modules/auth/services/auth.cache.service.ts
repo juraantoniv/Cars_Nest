@@ -22,12 +22,12 @@ export class AuthCacheService {
     userId: string,
     deviceId: string,
     accessToken: string,
-  ): Promise<void> {
+  ) {
     const key = `${AUTH_CACHE.ACCESS_TOKEN}:${userId}:${deviceId}`;
 
     await this.redisService.deleteByKey(key);
     await this.redisService.addOneToSet(key, accessToken);
-    await this.redisService.expire(
+    return await this.redisService.expire(
       key,
       this.jwtConfig.auth_access_token_expiration,
     );

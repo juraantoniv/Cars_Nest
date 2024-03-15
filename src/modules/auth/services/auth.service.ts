@@ -22,6 +22,7 @@ import {
   RecoveryPasswordRequestDto,
 } from '../dto/request/change-password.request.dto';
 import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
+import { AuthUserResponseTokensDto } from '../dto/response/auth-user.response.dto';
 import { TokenResponseDto } from '../dto/response/token.responce.dto';
 import { IUserData } from '../interfaces/user-data.interface';
 import { AuthCacheService } from './auth.cache.service';
@@ -77,13 +78,16 @@ export class AuthService {
     // return AuthMapper.toResponseDto(userAfterUpdateAvatar);
   }
 
-  public async signIn(dto: SignInRequestDto): Promise<AuthMapperWithTokens> {
+  public async signIn(
+    dto: SignInRequestDto,
+  ): Promise<AuthUserResponseTokensDto> {
     return await this.entityManager.transaction(async (tr) => {
       const userRepository = tr.getRepository(UserEntity);
       const userEntity = await userRepository.findOne({
         where: { email: dto.email },
         select: { id: true, password: true },
       });
+
       if (!userEntity) {
         throw new UnauthorizedException();
       }
@@ -96,6 +100,8 @@ export class AuthService {
       if (!isPasswordsMatch) {
         throw new UnauthorizedException();
       }
+
+      await this.deleteTokens(userEntity.id, dto.deviceId);
 
       const user = await userRepository.findOneBy({ id: userEntity.id });
 
@@ -111,10 +117,9 @@ export class AuthService {
   }
 
   public async logout(
-    refresh_token: string,
     userData: IUserData,
   ): Promise<void> {
-    await this.deleteTokens(refresh_token, userData);
+    await this.deleteTokens(userData.userId, userData.deviceId);
   }
 
   public async refreshToken(
@@ -125,7 +130,7 @@ export class AuthService {
       id: userData.userId,
     });
 
-    await this.deleteTokens(token, userData);
+    await this.deleteTokens(userData.userId, userData.deviceId);
 
     const tokens = await this.tokenService.generateAuthTokens({
       userId: user.id,
@@ -134,16 +139,17 @@ export class AuthService {
     });
 
     await this.saveTokens(tokens, user.id, userData.deviceId);
+    console.log(tokens);
     return tokens;
   }
 
-  private async deleteTokens(token: string, userData: IUserData) {
+  private async deleteTokens(userId: string, deviceId: string) {
     await Promise.all([
       this.refreshRepository.delete({
-        refreshToken: token,
-        deviceId: userData.deviceId,
+        user_id: userId,
+        deviceId: deviceId,
       }),
-      this.authCacheService.removeToken(userData.userId, userData.deviceId),
+      this.authCacheService.removeToken(userId, deviceId),
     ]);
   }
 
