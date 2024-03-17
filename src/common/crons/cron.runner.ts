@@ -48,7 +48,7 @@ export class TasksService {
     }
   }
 
-  @Cron(CronExpression.EVERY_2_HOURS)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   public async checkWorlds() {
     const cars = await this.carsRepository.find();
 

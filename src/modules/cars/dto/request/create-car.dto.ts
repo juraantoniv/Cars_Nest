@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString, Length } from 'class-validator';
+import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
 
 export class CreateCarDto {
   @IsString()
@@ -11,7 +11,6 @@ export class CreateCarDto {
   @Length(2, 20)
   @Transform(({ value }) => value.trim())
   brand: string;
-
 
   @IsString()
   currency_type: string;

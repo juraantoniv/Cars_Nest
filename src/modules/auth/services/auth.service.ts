@@ -22,7 +22,10 @@ import {
   RecoveryPasswordRequestDto,
 } from '../dto/request/change-password.request.dto';
 import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
-import { AuthUserResponseDto, AuthUserResponseTokensDto } from '../dto/response/auth-user.response.dto';
+import {
+  AuthUserResponseDto,
+  AuthUserResponseTokensDto,
+} from '../dto/response/auth-user.response.dto';
 import { TokenResponseDto } from '../dto/response/token.responce.dto';
 import { IUserData } from '../interfaces/user-data.interface';
 import { AuthCacheService } from './auth.cache.service';
@@ -73,7 +76,7 @@ export class AuthService {
     });
 
     await this.userRepository.save(userAfterUpdateAvatar);
-    return AuthMapper.toResponseDto(userAfterUpdateAvatar)
+    return AuthMapper.toResponseDto(userAfterUpdateAvatar);
 
     // return AuthMapper.toResponseDto(userAfterUpdateAvatar);
   }
@@ -88,8 +91,6 @@ export class AuthService {
         select: { id: true, password: true },
       });
 
-
-
       if (!userEntity) {
         throw new UnauthorizedException();
       }
@@ -98,8 +99,6 @@ export class AuthService {
         dto.password,
         userEntity.password,
       );
-
-      console.log(isPasswordsMatch);
 
       if (!isPasswordsMatch) {
         throw new UnauthorizedException();
@@ -120,9 +119,7 @@ export class AuthService {
     });
   }
 
-  public async logout(
-    userData: IUserData,
-  ): Promise<void> {
+  public async logout(userData: IUserData): Promise<void> {
     await this.deleteTokens(userData.userId, userData.deviceId);
   }
 

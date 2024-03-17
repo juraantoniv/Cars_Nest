@@ -52,7 +52,7 @@ async function bootstrap() {
   await app.listen(appConfig.port, () => {
     const url = `http://${appConfig.host}:${appConfig.port}`;
     Logger.log(`Server running ${url}`);
-    Logger.log(`Swagger running ${url}/docs#/`);
+    Logger.log(`Swagger running http://localhost:3005/docs#/`);
   });
 }
 
