@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 
 import { CarsEntity } from '../../database/entities/cars.entity';
-import { UserEntity } from '../../database/entities/user.entity';
 import { IUserData } from '../auth/interfaces/user-data.interface';
 import { CarsListRequestDto } from './dto/request/cars-list-request.dto';
 

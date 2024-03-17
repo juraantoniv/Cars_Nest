@@ -26,7 +26,6 @@ import {
 import { TokenResponseDto } from './dto/response/token.responce.dto';
 import { JwtRefreshGuard } from './guards/jwt.refresh.guard';
 import { IUserData } from './interfaces/user-data.interface';
-import { AuthMapperWithTokens } from './services/auth.mapper';
 import { AuthService } from './services/auth.service';
 
 @ApiTags('Auth')

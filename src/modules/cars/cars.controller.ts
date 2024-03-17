@@ -13,12 +13,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { ERights } from '../../common/enums/users.rights.enum';
 import { CarsEntity } from '../../database/entities/cars.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
 import { RightsDecorator } from '../auth/decorators/user-rights.decorator';
 import { BannedAccessGuard } from '../auth/guards/banned.access.guard';
 import { PremiumAccessGuard } from '../auth/guards/premium.access.guard';

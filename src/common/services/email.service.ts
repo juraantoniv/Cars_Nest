@@ -1,12 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import { log } from 'console';
-import { join } from 'path';
-import * as path from 'path';
-import process from 'process';
-
-import { UserEntity } from '../../database/entities/user.entity';
-import { CreateUserDto } from '../../modules/user/dto/request/create-user.dto';
 import { templates } from '../constans/email.constant';
 import { EEmailAction } from '../enums/email.action.enum';
 
