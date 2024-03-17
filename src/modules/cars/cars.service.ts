@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { MongoUnexpectedServerResponseError } from 'typeorm';
+import { ArrayContains, In, MongoUnexpectedServerResponseError } from 'typeorm';
 
 import { EEmailAction } from '../../common/enums/email.action.enum';
 import { ERights, EType } from '../../common/enums/users.rights.enum';
@@ -33,7 +33,7 @@ export class CarsService {
     file: Express.Multer.File,
     userData: IUserData,
   ) {
-    try {
+
       const course = await axios.get(
         'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5',
       );
@@ -85,12 +85,7 @@ export class CarsService {
         image: filePath,
         user_id: userData.userId,
       });
-      return CarsResponseMapper.toResponseDto(
-        await this.carsRepository.save(user),
-      );
-    } catch (e) {
-      console.log(e);
-    }
+      return await this.carsRepository.save(user)
   }
 
   public async findAll(query: CarsListRequestDto, userData: IUserData) {

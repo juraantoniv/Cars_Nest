@@ -8,7 +8,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CreateUserDto } from '../user/dto/request/create-user.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -37,11 +37,14 @@ export class AuthController {
   @SkipAuth()
   @ApiOperation({ summary: 'Registration' })
   @Post('sign-up')
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   public async signUp(
     @Body() dto: CreateUserDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<AuthUserResponseDto> {
+    console.log(dto);
+    console.log(file);
     return await this.authService.signUp(dto, file);
   }
 

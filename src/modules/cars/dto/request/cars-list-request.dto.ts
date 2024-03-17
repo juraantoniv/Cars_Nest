@@ -19,4 +19,14 @@ export class CarsListRequestDto {
   @Type(() => String)
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @Type(() => String)
+  @IsString()
+  price?: string;
+
+  @IsOptional()
+  @Type(() => String)
+  @IsString()
+  ORDER?: 'ASC' | 'DESC';
 }

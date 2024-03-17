@@ -28,9 +28,8 @@ export class CarsRepository extends Repository<CarsEntity> {
       );
       qb.setParameter('search', `%${query.search.toLowerCase()}%`);
     }
-
     qb.setParameter('myId', userData.userId);
-    qb.addOrderBy('cars.created', 'DESC');
+    qb.addOrderBy('cars.created', query.ORDER);
     qb.take(query.limit);
     qb.skip(query.offset);
     return await qb.getManyAndCount();

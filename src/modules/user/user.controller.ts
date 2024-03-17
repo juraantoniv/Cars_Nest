@@ -13,12 +13,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { log } from 'console';
 
-import { EEmailAction } from '../../common/enums/email.action.enum';
-import { EmailService } from '../../common/services/email.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
 import { IUserData } from '../auth/interfaces/user-data.interface';
-import { CreateUserDto } from './dto/request/create-user.dto';
 import { UpdateUserDto } from './dto/request/update-user.dto';
 import { UserService } from './services/user.service';
 

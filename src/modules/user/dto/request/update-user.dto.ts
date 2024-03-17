@@ -19,9 +19,8 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @Transform(({ value }) => value.trim())
   name: string;
   @IsString()
-  @IsEmail()
   @Transform(({ value }) => value.trim())
-  email: string;
+  city: string;
 
   @IsInt()
   @Min(16)

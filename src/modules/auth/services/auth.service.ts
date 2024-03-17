@@ -22,11 +22,11 @@ import {
   RecoveryPasswordRequestDto,
 } from '../dto/request/change-password.request.dto';
 import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
-import { AuthUserResponseTokensDto } from '../dto/response/auth-user.response.dto';
+import { AuthUserResponseDto, AuthUserResponseTokensDto } from '../dto/response/auth-user.response.dto';
 import { TokenResponseDto } from '../dto/response/token.responce.dto';
 import { IUserData } from '../interfaces/user-data.interface';
 import { AuthCacheService } from './auth.cache.service';
-import { AuthMapperWithTokens } from './auth.mapper';
+import { AuthMapper, AuthMapperWithTokens } from './auth.mapper';
 import { TokenService } from './token.service';
 
 @Injectable()
@@ -46,7 +46,7 @@ export class AuthService {
     dto: CreateUserDto,
     file: Express.Multer.File,
     manager?: boolean,
-  ): Promise<any> {
+  ): Promise<AuthUserResponseDto> {
     const findUser = await this.userRepository.findOneBy({
       email: dto.email,
     });
@@ -73,7 +73,7 @@ export class AuthService {
     });
 
     await this.userRepository.save(userAfterUpdateAvatar);
-    return userAfterUpdateAvatar;
+    return AuthMapper.toResponseDto(userAfterUpdateAvatar)
 
     // return AuthMapper.toResponseDto(userAfterUpdateAvatar);
   }
@@ -88,6 +88,8 @@ export class AuthService {
         select: { id: true, password: true },
       });
 
+
+
       if (!userEntity) {
         throw new UnauthorizedException();
       }
@@ -96,6 +98,8 @@ export class AuthService {
         dto.password,
         userEntity.password,
       );
+
+      console.log(isPasswordsMatch);
 
       if (!isPasswordsMatch) {
         throw new UnauthorizedException();

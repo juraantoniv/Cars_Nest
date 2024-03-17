@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer';
 
+import { UserEntity } from '../../../../database/entities/user.entity';
 import { TokenResponseDto } from './token.responce.dto';
 
 // import { TokenResponseDto } from './token.response.dto';
@@ -7,7 +8,7 @@ import { TokenResponseDto } from './token.responce.dto';
 @Exclude()
 export class AuthUserResponseDto {
   // tokens: TokenResponseDto;
-  user: any;
+  user: Partial<UserEntity>;
 }
 
 export class AuthUserResponseTokensDto {

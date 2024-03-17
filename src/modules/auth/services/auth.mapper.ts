@@ -1,4 +1,5 @@
 import { UserEntity } from '../../../database/entities/user.entity';
+import { UserMapper } from '../../user/services/user.mapper';
 import {
   AuthUserResponseDto,
   AuthUserResponseTokensDto,
@@ -10,7 +11,7 @@ export class AuthMapper {
     userEntity: Partial<UserEntity>,
   ): AuthUserResponseDto {
     return {
-      user: userEntity,
+      user: UserMapper.toResponseDto(userEntity),
     };
   }
 }
@@ -22,7 +23,7 @@ export class AuthMapperWithTokens {
   ): AuthUserResponseTokensDto {
     return {
       tokens: tokens,
-      user: userEntity,
+      user: UserMapper.toResponseDto(userEntity),
     };
   }
 }

@@ -13,7 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 
 import { ERights } from '../../common/enums/users.rights.enum';
 import { CarsEntity } from '../../database/entities/cars.entity';
@@ -38,13 +38,14 @@ export class CarsController {
   @Post()
   @ApiOperation({ summary: 'post a car by customer' })
   @RightsDecorator(ERights.Seller, ERights.Admin)
+  @ApiConsumes('multipart/form-data')
   @UseGuards(UserAccessGuard, PremiumAccessGuard, BannedAccessGuard)
   @UseInterceptors(FileInterceptor('image'))
   public async create(
     @Body() createCarDto: CreateCarDto,
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() userData: IUserData,
-  ): Promise<CarList> {
+  ): Promise<CarsEntity> {
     console.log(file);
     console.log(createCarDto);
     console.log(userData);
@@ -95,7 +96,7 @@ export class CarsController {
     return this.carsService.dislike(id, userData);
   }
   @ApiOperation({ summary: 'create request to manager to buy a car' })
-  @RightsDecorator(ERights.Manager)
+  @RightsDecorator(ERights.Costumer)
   @UseGuards(UserAccessGuard, BannedAccessGuard)
   @Post('buy/:id')
   buy(@Param('id') id: string, @CurrentUser() userData: IUserData) {
