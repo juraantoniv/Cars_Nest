@@ -9,7 +9,9 @@ import { UserEntity } from './user.entity';
 export class ViewsEntity extends BaseEntity {
   @Column()
   car_id: string;
-  @ManyToOne(() => CarsEntity, (entity) => entity.views)
+  @ManyToOne(() => CarsEntity, (entity) => entity.views, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'car_id' })
   car?: CarsEntity;
 

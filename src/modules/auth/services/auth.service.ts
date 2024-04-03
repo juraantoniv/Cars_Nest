@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { EntityManager } from 'typeorm';
@@ -43,6 +45,7 @@ export class AuthService {
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
     private readonly emailService: EmailService,
+    @Inject('USER_MICROSERVICE') private readonly user_client: ClientProxy,
   ) {}
 
   public async signUp(
@@ -94,6 +97,13 @@ export class AuthService {
       if (!userEntity) {
         throw new UnauthorizedException();
       }
+
+      // await this.user_client.connect();
+      // const res = this.user_client
+      //   .send({ cmd: 'login_user' }, { User: UserEntity })
+      //   .subscribe();
+      //
+      // console.log(res);
 
       const isPasswordsMatch = await bcrypt.compare(
         dto.password,

@@ -55,7 +55,7 @@ export class S3Service {
     await this.s3Client.send(
       new DeleteObjectCommand({
         Key: fileKey,
-        Bucket: process.env.AWS_BUCKED,
+        Bucket: awsConfig.aws_bucket,
       }),
     );
   }

@@ -33,73 +33,75 @@ export class CarsService {
     file: Express.Multer.File,
     userData: IUserData,
   ) {
+    const course = await axios.get(
+      'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5',
+    );
 
-      const course = await axios.get(
-        'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5',
-      );
+    const myObject: any = {};
+    myObject.UAH = Number(createCarDto.price);
+    const arr = [];
+    arr.push(
+      myObject,
+      {
+        USD: Math.ceil(
+          Number(createCarDto.price) / Number(course.data[0].sale),
+        ),
+      },
+      {
+        EUR: Math.ceil(
+          Number(createCarDto.price) / Number(course.data[1].sale),
+        ),
+      },
+    );
 
-      const myObject: any = {};
-      myObject.UAH = Number(createCarDto.price);
-      const arr = [];
-      arr.push(
-        myObject,
-        {
-          USD: Math.ceil(
-            Number(createCarDto.price) / Number(course.data[0].sale),
-          ),
+    const currentUser = await this.userRepository.findOneBy({
+      id: userData.userId,
+    });
+
+    if (!createCarDto.brand.includes('[BMW, MERCEDES, OPEL]')) {
+      const user = await this.userRepository.find({
+        where: {
+          role: ERights.Admin,
         },
-        {
-          EUR: Math.ceil(
-            Number(createCarDto.price) / Number(course.data[1].sale),
-          ),
-        },
-      );
-
-      const currentUser = await this.userRepository.findOneBy({
-        id: userData.userId,
       });
-
-      if (!createCarDto.brand.includes('[BMW, MERCEDES, OPEL]')) {
-        const user = await this.userRepository.find({
-          where: {
-            role: ERights.Admin,
-          },
+      user.map(async (user) => {
+        await this.emailService.send(user.email, EEmailAction.Card_Brand, {
+          name: currentUser.name,
+          email: currentUser.email,
+          model: createCarDto.brand,
         });
-        user.map(async (user) => {
-          await this.emailService.send(user.email, EEmailAction.Card_Brand, {
-            name: currentUser.name,
-            email: currentUser.email,
-            model: createCarDto.brand,
-          });
-        });
-      }
-      const filePath = await this.s3Serv.uploadFile(
-        file,
-        EFileTypes.User,
-        userData.userId,
-      );
-
-      const user = this.carsRepository.create({
-        ...createCarDto,
-        currency: arr,
-        image: filePath,
-        user_id: userData.userId,
       });
-      return await this.carsRepository.save(user)
+    }
+    const filePath = await this.s3Serv.uploadFile(
+      file,
+      EFileTypes.User,
+      userData.userId,
+    );
+
+    const user = this.carsRepository.create({
+      ...createCarDto,
+      currency: arr,
+      image: filePath,
+      user_id: userData.userId,
+    });
+    return await this.carsRepository.save(user);
   }
 
   public async findAll(query: CarsListRequestDto, userData: IUserData) {
     const user = await this.userRepository.findOneBy({ id: userData.userId });
 
     const userPremium = user.userPremiumRights;
-    const [entities, total] = await this.carsRepository.getList(
-      query,
-      userData,
-    );
-
-    return userPremium === EType.Premium
-      ? CarsResponseMapper.PremResponseManyDto(entities, total, query)
-      : CarsResponseMapper.toResponseManyDto(entities, total, query);
+    try {
+      const [entities, total] = await this.carsRepository.getList(
+        query,
+        userData,
+      );
+      return userPremium === EType.Premium
+        ? CarsResponseMapper.PremResponseManyDto(entities, total, query)
+        : CarsResponseMapper.toResponseManyDto(entities, total, query);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   public async findOne(id: string, userData: IUserData) {
@@ -140,7 +142,12 @@ export class CarsService {
       throw new ForbiddenException('You cant delete a car that not your own');
     }
 
-    await this.carsRepository.remove(car);
+    try {
+      await this.s3Serv.deleteFile(car.image);
+      await this.carsRepository.remove(car);
+    } catch (e) {
+      console.log(e);
+    }
   }
   public async like(id: string, userData: IUserData) {
     const { car, user } = await this.findCarAndUser(id, userData.userId);

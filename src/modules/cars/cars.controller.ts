@@ -13,7 +13,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { ERights } from '../../common/enums/users.rights.enum';
 import { CarsEntity } from '../../database/entities/cars.entity';
@@ -24,6 +30,7 @@ import { PremiumAccessGuard } from '../auth/guards/premium.access.guard';
 import { UserAccessGuard } from '../auth/guards/user.access.guard';
 import { IUserData } from '../auth/interfaces/user-data.interface';
 import { CarsService } from './cars.service';
+import { ApiFile } from './decorators/api-file.decorator';
 import { CarsListRequestDto } from './dto/request/cars-list-request.dto';
 import { CreateCarDto } from './dto/request/create-car.dto';
 import { UpdateCarDto } from './dto/request/update-car.dto';
@@ -37,9 +44,10 @@ export class CarsController {
   @Post()
   @ApiOperation({ summary: 'post a car by customer' })
   @RightsDecorator(ERights.Seller, ERights.Admin)
-  @ApiConsumes('multipart/form-data')
   @UseGuards(UserAccessGuard, PremiumAccessGuard, BannedAccessGuard)
+  // @ApiFile('image')
   @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   public async create(
     @Body() createCarDto: CreateCarDto,
     @UploadedFile() file: Express.Multer.File,

@@ -19,7 +19,7 @@ export class CarsRepository extends Repository<CarsEntity> {
     qb.leftJoinAndSelect('cars.likes', 'likes');
     qb.leftJoinAndSelect('cars.user', 'user');
     qb.leftJoinAndSelect('cars.views', 'views');
-    // qb.where('cars.active = :active', { active: 'active' });
+    qb.where('cars.active = :active', { active: 'active' });
 
     if (query.search) {
       qb.andWhere(
@@ -28,6 +28,8 @@ export class CarsRepository extends Repository<CarsEntity> {
       qb.setParameter('search', `%${query.search.toLowerCase()}%`);
     }
     qb.setParameter('myId', userData.userId);
+    qb.setParameter('min', query.minValue);
+    qb.setParameter('max', query.maxValue);
     qb.addOrderBy('cars.created', query.ORDER);
     qb.take(query.limit);
     qb.skip(query.offset);
